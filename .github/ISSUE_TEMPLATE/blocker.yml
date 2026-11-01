@@ -1,0 +1,42 @@
+name: "Blocker"
+description: "Report an impediment stopping work (auto-moves card to Blocked and stamps Blocked since)"
+title: "[Blocker]: "
+labels:
+  - "type:blocker"
+  - "status:blocked"
+body:
+  - type: input
+    id: blocked_item
+    attributes:
+      label: "What Is Blocked (Issue # or URL)"
+      description: "Which issue card(s) cannot move forward until this is resolved?"
+      placeholder: "Blocks #42 (tip: also link via Issue Relationships -> 'blocking')"
+    validations:
+      required: true
+
+  - type: textarea
+    id: reason
+    attributes:
+      label: "Blocked Reason & Unblock Condition"
+      description: "Why is work stopped, and what concrete action unblocks it? (Copy 1 line to the project's 'Blocked reason' field.)"
+      placeholder: "Waiting on credentials for staging service-x sandbox from @ORG/maintainers."
+    validations:
+      required: true
+
+  - type: input
+    id: who_can_unblock
+    attributes:
+      label: "Who Can Unblock (@handle or team)"
+      description: "Note: A human must also set the card's Assignee to the owner driving the unblock."
+      placeholder: "@sam or @ORG/maintainers"
+    validations:
+      required: false
+
+  - type: input
+    id: blocked_since
+    attributes:
+      label: "Blocked Since Date (Defaults to Today)"
+      description: "Leave blank or enter YYYY-MM-DD — board-keeper.yml stamps the project 'Blocked since' field automatically today."
+      placeholder: "YYYY-MM-DD (auto-stamped as today if left blank)"
+    validations:
+      required: false

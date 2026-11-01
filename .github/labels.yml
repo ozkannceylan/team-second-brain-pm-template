@@ -1,0 +1,40 @@
+# .github/labels.yml
+# Minimal 9-label set (<= 10 target). Synced idempotently by scripts/sync-labels.sh.
+# Canonical names match project/fields.yml (.labels.*).
+
+labels:
+  - name: "type:task"
+    color: "1D76DB"
+    description: "Standard engineering, operational, or documentation task (task.yml)"
+
+  - name: "type:bug"
+    color: "D73A4A"
+    description: "Defect, regression, or broken behavior (bug.yml)"
+
+  - name: "type:blocker"
+    color: "B60205"
+    description: "Impediment stopping progress on one or more cards (blocker.yml)"
+
+  - name: "type:decision"
+    color: "5319E7"
+    description: "Team or architectural decision that becomes an ADR in decisions/ (decision.yml)"
+
+  - name: "status:blocked"
+    color: "E99695"
+    description: "Mobile-friendly trigger: board-keeper moves card to Blocked & stamps Blocked since"
+
+  - name: "escalated"
+    color: "D93F0B"
+    description: "Applied automatically when a card remains Blocked for >= 5 days"
+
+  - name: "needs-second-brain"
+    color: "0E8A16"
+    description: "Card requires a Knowledge link or 'Learned:' comment before Done"
+
+  - name: "agent-drafted"
+    color: "FBCA04"
+    description: "Created or drafted by an AI agent; requires human assignment and DoD verification"
+
+  - name: "policy-violation"
+    color: "B60205"
+    description: "Applied by board-keeper when a bot sets Done/Assignees or when board auth fails"

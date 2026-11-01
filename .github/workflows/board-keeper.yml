@@ -1,0 +1,117 @@
+name: Board Keeper (Guardrails, Blocked-Since, Learnings, Aging & Weekly Digest)
+
+# Verified Fact F1: GitHub Actions has NO `projects_v2_item` trigger.
+# We combine:
+#   1. Real-time `on: issues` events (0s latency on assign, close, and `status:blocked` label)
+#   2. Hourly weekday poll (`0 8-18 * * 1-5` = ~242 cron runs/mo, <17% of GitHub Free 2,000-min cap)
+#   3. Manual `workflow_dispatch` trigger for 1-click runs and cron keepalive
+on:
+  schedule:
+    - cron: '0 8-18 * * 1-5'
+  issues:
+    types: [assigned, unassigned, closed, reopened, labeled]
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Execution mode (all, guardrails, aging, learnings, digest)'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - guardrails
+          - aging
+          - learnings
+          - digest
+      dry_run:
+        description: 'Run in dry-run mode without writing to GitHub'
+        required: false
+        default: false
+        type: boolean
+
+# GITHUB_TOKEN is only used for checkout and the failure-alert issue.
+# All project / inbox-PR writes use the App token (or PROJECT_PAT).
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: board-keeper-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  board-keeper:
+    name: Run Unified Board Keeper Engine
+    runs-on: ubuntu-latest
+    # Skip label events other than the Blocked proxy label (saves minutes and
+    # avoids re-triggering on labels the keeper itself adds).
+    # Label name must match project/fields.yml labels.status_blocked.
+    if: >-
+      github.event_name != 'issues' ||
+      github.event.action != 'labeled' ||
+      github.event.label.name == 'status:blocked'
+    env:
+      HAS_APP_CREDENTIALS: ${{ secrets.APP_ID != '' && secrets.APP_PRIVATE_KEY != '' && 'true' || 'false' }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Mint short-lived GitHub App token (primary)
+        id: app-token
+        if: ${{ env.HAS_APP_CREDENTIALS == 'true' }}
+        uses: actions/create-github-app-token@v1
+        continue-on-error: true
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: ${{ vars.ORG_NAME || github.repository_owner }}
+
+      - name: Execute scripts/project_query.sh
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token || secrets.PROJECT_PAT }}
+          ORG_NAME: ${{ vars.ORG_NAME || github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
+          PROJECT_NUMBER: ${{ vars.PROJECT_NUMBER || '1' }}
+          AUTO_REVERT: ${{ vars.AUTO_REVERT || '' }}
+          DRY_RUN: ${{ inputs.dry_run && 'true' || 'false' }}
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_ACTION: ${{ github.event.action || '' }}
+          EVENT_ACTOR: ${{ github.actor }}
+          ISSUE_NUMBER: ${{ github.event.issue.number || '' }}
+          EVENT_LABEL: ${{ github.event.label.name || '' }}
+          EVENT_ASSIGNEE: ${{ github.event.assignee.login || '' }}
+        run: |
+          if [[ -z "${GH_TOKEN}" ]]; then
+            echo "ERROR: Neither GitHub App secrets (APP_ID + APP_PRIVATE_KEY) nor fallback secret PROJECT_PAT provided." >&2
+            exit 1
+          fi
+          RUN_MODE="${{ inputs.mode || 'all' }}"
+          if [[ "${EVENT_NAME}" == "issues" ]]; then
+            RUN_MODE="issue-event"
+          fi
+          bash ./scripts/project_query.sh \
+            --mode "${RUN_MODE}" \
+            --org "${ORG_NAME}" \
+            --repo "${REPO_NAME}" \
+            --project-number "${PROJECT_NUMBER}"
+
+      - name: Alert on authentication or board-keeper failure (uses built-in GITHUB_TOKEN)
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO_FULL: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          ALERT_TITLE="⚠️ Board-keeper automation failed — check App key or PROJECT_PAT"
+          ALERT_BODY="The scheduled or event-triggered \`board-keeper.yml\` workflow failed ([view run log](${RUN_URL})).
+
+          **Common causes & 2-minute fix:**
+          1. \`PROJECT_PAT\` expired or lacked \`project\` / \`repo\` scope -> rotate secret \`PROJECT_PAT\` or configure \`APP_ID\` + \`APP_PRIVATE_KEY\`.
+          2. Repository variable \`PROJECT_NUMBER\` or \`ORG_NAME\` does not match the organization Project v2 number."
+          EXISTING_NUM="$(gh issue list --repo "${REPO_FULL}" --state open --search "\"${ALERT_TITLE}\" in:title" --json number --jq '.[0].number // empty')"
+          if [[ -z "${EXISTING_NUM}" ]]; then
+            gh issue create --repo "${REPO_FULL}" \
+              --title "${ALERT_TITLE}" \
+              --label "policy-violation" \
+              --body "${ALERT_BODY}" >/dev/null || true
+          fi

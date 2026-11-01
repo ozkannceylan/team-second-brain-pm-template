@@ -1,0 +1,42 @@
+name: "Decision"
+description: "Propose or record a team decision (becomes an ADR draft in decisions/ by convention)"
+title: "[Decision]: "
+labels:
+  - "type:decision"
+  - "needs-second-brain"
+body:
+  - type: textarea
+    id: context
+    attributes:
+      label: "Context & Problem Statement"
+      description: "What force, constraint, or question requires a team decision right now?"
+      placeholder: "We need a uniform retry and timeout policy across area-a services."
+    validations:
+      required: true
+
+  - type: textarea
+    id: options
+    attributes:
+      label: "Options Considered (2–3 Alternatives)"
+      description: "List the realistic options and their main trade-offs."
+      placeholder: "Option A: Fixed 5s interval\nOption B: Exponential backoff + full jitter (2s-60s)\nOption C: Dead-letter queue without automatic retry"
+    validations:
+      required: true
+
+  - type: textarea
+    id: decision
+    attributes:
+      label: "Proposed or Chosen Decision"
+      description: "Which option are we picking and why? (Prefix final comment with 'Decision:' for automatic inbox/ capture.)"
+      placeholder: "Pick Option B (exponential backoff with full jitter)."
+    validations:
+      required: false
+
+  - type: textarea
+    id: consequences
+    attributes:
+      label: "Consequences & Target ADR Path in decisions/"
+      description: "What changes as a result, and what file in decisions/ will record this ADR?"
+      placeholder: "Target ADR: decisions/0004-service-x-retry-policy.md (template: _templates/adr.md)"
+    validations:
+      required: false

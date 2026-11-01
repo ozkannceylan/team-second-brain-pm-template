@@ -1,0 +1,32 @@
+name: "Task"
+description: "A focused engineering, operational, or documentation task (< 1 min on mobile)"
+title: "[Task]: "
+labels:
+  - "type:task"
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: "Goal / Definition of Done"
+      description: "What outcome needs to be true when a human moves this card to Done?"
+      placeholder: "e.g., Add exponential backoff with jitter to service-x webhook sender."
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: "Context & Links (Optional)"
+      description: "Related issues (#123), parent issue, or Second Brain page paths."
+      placeholder: "Parent: #10 | Docs: knowledge/area-a/retry-backoff-policy.md"
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: knowledge_check
+    attributes:
+      label: "Second Brain Capture (On Completion)"
+      description: "Non-git users: comment 'Learned: <takeaway>' on this issue before moving to Done."
+      options:
+        - label: "This task is likely to produce a reusable operational learning (`needs-second-brain`)"
+          required: false

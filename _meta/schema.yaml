@@ -1,0 +1,76 @@
+# _meta/schema.yaml
+# Canonical frontmatter schema for curated Second Brain pages (knowledge/, standards/, decisions/).
+# Enforced by scripts/validate_knowledge.sh in .github/workflows/validate-knowledge.yml.
+# Note: Raw notes in inbox/ and folder README.md index files do not require frontmatter.
+
+schema_version: "1.0"
+
+required_fields:
+  - title
+  - domain
+  - type
+  - owner
+  - status
+  - last_verified
+  - locked
+  - publish
+  - sources
+  - superseded_by
+  - related_cards
+
+fields:
+  title:
+    type: string
+    non_empty: true
+    description: "Human-readable page title."
+  domain:
+    type: string
+    non_empty: true
+    examples: ["area-a", "area-b", "operations"]
+    description: "Functional subsystem or team domain."
+  type:
+    type: enum
+    allowed_values: ["runbook", "guide", "reference", "standard", "adr"]
+    description: "Document classification."
+  owner:
+    type: string
+    non_empty: true
+    pattern: "^@[A-Za-z0-9_/-]+$"
+    examples: ["@ORG/maintainers", "@alex"]
+    description: "GitHub handle or team responsible for 30-day verification."
+  status:
+    type: enum
+    allowed_values: ["draft-bot", "verified", "deprecated"]
+    human_only_values: ["verified"]
+    description: "Verification state. ONLY humans may set 'verified'."
+  last_verified:
+    type: date_or_null
+    pattern: "^([0-9]{4}-[0-9]{2}-[0-9]{2}|null|~)$"
+    human_only: true
+    description: "ISO-8601 date (YYYY-MM-DD) when a human last verified accuracy. Null allowed only when status is draft-bot."
+  locked:
+    type: boolean
+    allowed_values: [true, false]
+    description: "When true, non-human actors are blocked by CI from modifying the file."
+  publish:
+    type: boolean
+    allowed_values: [true, false]
+    description: "Whether the external static site (Quartz 5) and Q&A bot should index this page."
+  sources:
+    type: list
+    description: "List of source paths, PRs, or URLs."
+  superseded_by:
+    type: string_or_null
+    description: "Path to replacement page when status == deprecated; otherwise null."
+  related_cards:
+    type: list
+    description: "Issue URLs (https://github.com/ORG/REPO/issues/N) linked to this page."
+
+freshness_policy:
+  derived_at_build_time: true
+  fresh_days_max: 30
+  overdue_start_day: 31
+  stale_start_day: 61
+  archive_candidate_start_day: 91
+  contradiction_section_heading: "## Contradictions and open questions"
+  contradiction_resolution_sla_days: 7

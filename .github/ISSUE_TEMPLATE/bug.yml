@@ -1,0 +1,32 @@
+name: "Bug"
+description: "A defect, regression, or broken behavior in a service or workflow"
+title: "[Bug]: "
+labels:
+  - "type:bug"
+body:
+  - type: textarea
+    id: actual
+    attributes:
+      label: "What Happened vs. Expected"
+      description: "Describe the broken behavior and what should have happened."
+      placeholder: "service-x returns HTTP 504 on burst webhook retries instead of backing off."
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: "How to Reproduce / Where Seen"
+      description: "Steps, URL, command, or log snippet."
+      placeholder: "1. Trigger 20 concurrent events on service-x\n2. Observe retry storm at +5s"
+    validations:
+      required: true
+
+  - type: input
+    id: related
+    attributes:
+      label: "Related Card or Knowledge Page (Optional)"
+      description: "Issue # or path in knowledge/ if known ( remind: comment 'Learned:' when fixed!)."
+      placeholder: "#42 or knowledge/area-a/retry-backoff-policy.md"
+    validations:
+      required: false

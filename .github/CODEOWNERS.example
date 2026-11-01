@@ -1,0 +1,23 @@
+# .github/CODEOWNERS.example
+# Copy to .github/CODEOWNERS and replace @ORG/maintainers with your team handle.
+#
+# Plan note (Verified Fact F13):
+# - On PUBLIC repositories (Free or Team) and PRIVATE repositories on GitHub TEAM ($4/user/mo),
+#   GitHub enforces CODEOWNERS via branch rulesets / protected branches.
+# - On PRIVATE repositories on GitHub FREE, GitHub does not enforce CODEOWNERS natively;
+#   therefore .github/workflows/validate-knowledge.yml ALSO enforces frontmatter schema,
+#   `locked: true` protection, and human-only `last_verified` on every PR and push.
+
+# Second Brain structure, schema, and templates
+/_meta/                         @ORG/maintainers
+/_templates/                    @ORG/maintainers
+
+# Locked engineering standards & Architecture Decision Records (ADRs)
+/standards/                     @ORG/maintainers
+/decisions/                     @ORG/maintainers
+/docs/decisions/                @ORG/maintainers
+
+# Project v2 single-source-of-truth config, scripts, and workflows
+/project/                       @ORG/maintainers
+/scripts/                       @ORG/maintainers
+/.github/                       @ORG/maintainers

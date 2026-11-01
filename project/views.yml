@@ -1,0 +1,50 @@
+# project/views.yml
+# Machine-readable definition of the 3 saved GitHub Projects v2 views.
+# Provisioned via REST API (POST /orgs/{org}/projectsV2/{project_number}/views, F12)
+# by scripts/setup-project.sh and documented in project/views.md.
+
+views:
+  - name: "1. Board"
+    layout: "board"
+    filter: "is:issue"
+    column_field: "Status"
+    sort_by: "Priority:asc"
+    visible_fields:
+      - "Title"
+      - "Assignees"
+      - "Priority"
+      - "Area"
+      - "Blocked since"
+      - "Blocked reason"
+      - "Knowledge link"
+    standup_question: "Visual drag-and-drop Kanban board; shows red column badge if Doing exceeds soft WIP limit (2 x team_size)."
+
+  - name: "2. Stand-up Dashboard"
+    layout: "table"
+    filter: "status:Blocked,Doing OR (status:Done updated:>@today-7d)"
+    group_by: "Status"
+    sort_by: "Blocked since:asc,Priority:asc"
+    visible_fields:
+      - "Title"
+      - "Status"
+      - "Assignees"
+      - "Priority"
+      - "Blocked since"
+      - "Blocked reason"
+      - "Knowledge link"
+      - "Area"
+    standup_question: "Primary 10-minute stand-up dashboard: 0-3m Blockers (oldest first) -> 3-7m Doing exceptions -> 7-10m recent Done & knowledge links."
+
+  - name: "3. Needs Attention"
+    layout: "table"
+    filter: "(status:Blocked (no:assignee OR no:\"Blocked since\" OR no:\"Blocked reason\")) OR (status:Doing no:assignee) OR (status:Done no:\"Knowledge link\")"
+    group_by: "Status"
+    sort_by: "Priority:asc"
+    visible_fields:
+      - "Title"
+      - "Status"
+      - "Assignees"
+      - "Blocked since"
+      - "Blocked reason"
+      - "Knowledge link"
+    standup_question: "Zero-inbox hygiene check: Which Blocked cards lack an owner/reason, which Doing cards are unowned, and which Done cards are missing Knowledge link?"

@@ -1,0 +1,52 @@
+name: Validate Second Brain Knowledge
+
+on:
+  pull_request:
+    paths:
+      - 'knowledge/**'
+      - 'decisions/**'
+      - 'standards/**'
+      - 'docs/decisions/**'
+      - '_meta/**'
+      - '_templates/**'
+      - 'scripts/validate_knowledge.sh'
+      - '.github/workflows/validate-knowledge.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'knowledge/**'
+      - 'decisions/**'
+      - 'standards/**'
+      - 'docs/decisions/**'
+      - '_meta/**'
+      - 'scripts/validate_knowledge.sh'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-knowledge-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-knowledge:
+    name: Validate Frontmatter Schema & Human-Only Verification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run scripts/validate_knowledge.sh
+        env:
+          VALIDATE_ACTOR: ${{ github.actor }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before || '' }}
+        run: |
+          BASE_ARGS=()
+          if [[ -n "${BASE_SHA}" && "${BASE_SHA}" != "0000000000000000000000000000000000000000" ]]; then
+            BASE_ARGS=(--base "${BASE_SHA}")
+          fi
+          bash ./scripts/validate_knowledge.sh --all --actor "${VALIDATE_ACTOR}" "${BASE_ARGS[@]}"

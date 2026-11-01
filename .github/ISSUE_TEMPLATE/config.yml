@@ -1,0 +1,12 @@
+# .github/ISSUE_TEMPLATE/config.yml
+# Why blank_issues_enabled: true?
+# Gives structured forms (<=5 inputs) as the default picker while allowing a
+# 15-second title-only capture on a mobile phone when in a rush (ADR 0001 §4.8).
+blank_issues_enabled: true
+contact_links:
+  - name: "📋 Open the Team Stand-up Dashboard (Projects v2)"
+    url: "https://github.com/orgs/ORG/projects/1"
+    about: "View the Kanban board, Stand-up Dashboard, and Needs Attention views."
+  - name: "🧠 Browse or Drop Notes in the Second Brain (inbox/ & knowledge/)"
+    url: "https://github.com/ORG/REPO/tree/main/knowledge"
+    about: "Read verified operational pages or see how Learned: comments flow into inbox/."

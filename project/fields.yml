@@ -1,0 +1,107 @@
+# project/fields.yml
+# Single Source of Truth for GitHub Projects v2 fields, options, governance
+# thresholds, canonical label names, and automation secret/variable names.
+# Read by: scripts/setup-project.sh, scripts/project_query.sh, scripts/validate_knowledge.sh
+
+project:
+  default_title: "Team Kanban & Stand-up Dashboard"
+  short_description: "Unified task board + Second Brain workflow (Todo, Doing, Blocked, Done)"
+  auto_add_filter: "is:issue is:open"
+  auto_archive_filter: "status:Done updated:<@today-30d"
+  item_closed_to_done: false
+  pr_merged_to_done: false
+
+auth:
+  app_id_secret: "APP_ID"
+  app_private_key_secret: "APP_PRIVATE_KEY"
+  fallback_pat_secret: "PROJECT_PAT"
+  org_variable: "ORG_NAME"
+  project_number_variable: "PROJECT_NUMBER"
+
+governance:
+  auto_revert: false
+  wip_limit_per_person: 2
+  blocked_warn_days: 3
+  blocked_escalate_days: 5
+  doing_stale_days: 5
+  alert_cooldown_days: 3
+  escalation_mention: "@ORG/maintainers"
+  inbox_capture_branch: "bot/inbox-capture"
+  learned_comment_regex: "^(Learned|Decision|Knowledge):"
+  bot_actor_patterns:
+    - "*[bot]"
+    - "*-bot"
+    - "bot-*"
+    - "org-agent-bot"
+    - "github-actions[bot]"
+
+labels:
+  type_task: "type:task"
+  type_bug: "type:bug"
+  type_blocker: "type:blocker"
+  type_decision: "type:decision"
+  status_blocked: "status:blocked"
+  escalated: "escalated"
+  needs_second_brain: "needs-second-brain"
+  agent_drafted: "agent-drafted"
+  policy_violation: "policy-violation"
+
+status_field:
+  name: "Status"
+  data_type: "SINGLE_SELECT"
+  options:
+    - name: "Todo"
+      color: "GRAY"
+      description: "Queued and ready to pull; not started yet"
+    - name: "Doing"
+      color: "BLUE"
+      description: "Actively in progress (soft limit <= 2 per person)"
+    - name: "Blocked"
+      color: "RED"
+      description: "Stopped by an impediment; requires Assignee, Blocked since, and Blocked reason"
+    - name: "Done"
+      color: "GREEN"
+      description: "Verified complete by a human with Knowledge link or Learned: comment"
+
+custom_fields:
+  - name: "Priority"
+    data_type: "SINGLE_SELECT"
+    default_option: "P1"
+    description: "Urgency for triage and stand-up ordering"
+    options:
+      - name: "P0"
+        color: "RED"
+        description: "Urgent — blocks team or production"
+      - name: "P1"
+        color: "YELLOW"
+        description: "Normal — active weekly priority (default)"
+      - name: "P2"
+        color: "GRAY"
+        description: "Low — pull when P0/P1 queue is clear"
+
+  - name: "Blocked since"
+    data_type: "DATE"
+    description: "Date (YYYY-MM-DD) the card entered Blocked; auto-stamped and cleared by board-keeper.yml"
+
+  - name: "Blocked reason"
+    data_type: "TEXT"
+    description: "What is blocking this card, who can unblock it, and next step"
+
+  - name: "Knowledge link"
+    data_type: "TEXT"
+    description: "Path to Second Brain page (knowledge/area-a/...), inbox/issue-N.md, URL, or N/A"
+
+  - name: "Area"
+    data_type: "SINGLE_SELECT"
+    default_option: "area-a"
+    description: "Subsystem or functional slice for filtering as the team scales from 5 to 15"
+    options:
+      - name: "area-a"
+        color: "BLUE"
+        description: "Subsystem or domain area A"
+      - name: "area-b"
+        color: "PURPLE"
+        description: "Subsystem or domain area B"
+      - name: "ops"
+        color: "GREEN"
+        description: "Operations, tooling, and Second Brain maintenance"
