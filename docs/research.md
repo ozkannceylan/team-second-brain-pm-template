@@ -55,4 +55,4 @@
 
 ## 4. How This Was Made
 
-Research by **Gemini 4 Argon Deep Research**, judged by **Gemini 4 Argon**, brainstorming/architecture review/build by **Gemini 4 Argon (High)** via **Antigravity CLI**.
+Research by **Gemini 4 Argon Deep Research**, judged by **Gemini 4 Argon**, brainstorming/architecture review/build by **Gemini 4 Argon (High)**.
